@@ -3,7 +3,7 @@
 //建立数据库连接
 $db_user = 'root';
 $db_pass = 'root';
-$dbh = new PDO('mysql:host=192.168.91.71;dbname=swoole_chat', $db_user, $db_pass);
+$dbh = new PDO('mysql:host=192.168.109.1;dbname=swoole', $db_user, $db_pass);
 
 $server = new swoole_websocket_server("0.0.0.0", 9502);
 
