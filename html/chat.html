@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
+    <title>聊天室</title>
+
+    <!-- Bootstrap -->
+    <link href="/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- HTML5 shim 和 Respond.js 是为了让 IE8 支持 HTML5 元素和媒体查询（media queries）功能 -->
+    <!-- 警告：通过 file:// 协议（就是直接将 html 页面拖拽到浏览器中）访问页面时 Respond.js 不起作用 -->
+    <!--[if lt IE 9]>
+    <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+    <![endif]-->
+</head>
+<body>
+<div class="container">
+    <h1>欢迎来到聊天室 <span id="uname" style="color: darkorange"></span> </h1>
+
+    <hr>
+
+
+    <div id="chat_div">
+        <blockquote>
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer posuere erat a ante.</p>
+            <footer>Someone famous in <cite title="Source Title">Source Title</cite></footer>
+        </blockquote>
+    </div>
+
+</div>
+
+
+
+<hr>
+输入：<textarea name="" id="send_msg" cols="30" rows="10">
+</textarea>
+<button id="btn_send">发送</button>
+
+
+<script>
+
+    var uname = localStorage.getItem('uname');
+    if(uname==null){
+        var u = prompt('请输入昵称','-_-');
+        localStorage.setItem('uname',u);
+    }
+
+</script>
+
+<!-- jQuery (Bootstrap 的所有 JavaScript 插件都依赖 jQuery，所以必须放在前边) -->
+<script src="/bootstrap/js/jquery-1.12.4.min.js"></script>
+<!-- 加载 Bootstrap 的所有 JavaScript 插件。你也可以根据需要只加载单个插件。 -->
+<script src="/bootstrap/js/bootstrap.min.js"></script>
+
+<script>
+    $("#uname").text(localStorage.getItem('uname'))
+</script>
+
+<script>
+
+    //建立websocket
+    const ws = new WebSocket('ws://192.168.91.130:9502');
+    ws.addEventListener('open',function (data) {
+
+        //点击事件
+        $("#btn_send").click(function(e){
+            //私聊
+            var to_user = localStorage.getItem('fd');
+            var msg = $("#send_msg").val();
+            var msg_data = {msg:msg,u:localStorage.getItem('uname'),to:to_user,type:2};
+            ws.send(JSON.stringify(msg_data));
+        });
+
+        //接收消息
+        ws.addEventListener('message',function(d){
+            //判断消息类型
+            var rec_data = JSON.parse(d.data);
+            if(rec_data.type=='open'){        //初次连接
+                localStorage.setItem('fd',rec_data.fd);     //保存 连接标识
+            }
+
+
+            if(rec_data.type=='msg'){
+                var msg = '        <blockquote>\n' +
+                    '            <p> '+ rec_data.msg+ '</p>\n' +
+                    '            <footer>'+ rec_data.u +' <cite title="Source Title"> <'+rec_data .t +'> </cite></footer>\n' +
+                    '        </blockquote>';
+
+                $("#chat_div").append(msg);
+            }
+
+        })
+
+    })
+
+</script>
+
+</body>
+</html>
