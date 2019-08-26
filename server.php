@@ -5,8 +5,7 @@ $db_user = 'root';
 $db_pass = 'root';
 $dbh = new PDO('mysql:host=192.168.109.1;dbname=swoole', $db_user, $db_pass);
 
-$server = new swoole_websocket_server("0.0.0.0", 9502);
-
+$server = new swoole_websocket_server("0.0.0.0",9502);
 $server->on('open', function($server, $req) {
     echo "connection open: {$req->fd}\n";
     $send_data = [
@@ -69,7 +68,7 @@ $server->on('message', function($server, $frame) use($dbh) {
             $server->push($fds, json_encode($send_data));
         }
     }
-    
+
 });
 
 $server->on('close', function($server, $fd) {
@@ -77,3 +76,4 @@ $server->on('close', function($server, $fd) {
 });
 
 $server->start();
+
